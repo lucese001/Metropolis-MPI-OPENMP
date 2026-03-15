@@ -6,6 +6,9 @@
 
 cd $PBS_O_WORKDIR
 
+# Setup MVAPICH2
+source /storage/local/exp_soft/local_al9/mpi/mvapich2-2.3.7-2/install/bin/mpivars.sh
+
 SEED=42
 LOGFILE="logs/repro_test_${PBS_JOBID}.log"
 mkdir -p logs
@@ -44,11 +47,11 @@ for config in "${TEST_CONFIGS[@]}"; do
     RUN2_FILE="run2_nr${NRANKS}_nt${NTHREADS}.txt"
 
     echo "  RUN 1"
-    mpirun -n $NRANKS ./ising_test.exe \
+    mpiexec -n $NRANKS ./ising_test.exe \
         $NDIM $L0 $L1 $NCONFS $NTHREADS $BETA $SEED -cold > "$RUN1_FILE" 2>&1
 
     echo "  RUN 2 "
-    mpirun -n $NRANKS ./ising_test.exe \
+    mpiexec -n $NRANKS ./ising_test.exe \
         $NDIM $L0 $L1 $NCONFS $NTHREADS $BETA $SEED -cold > "$RUN2_FILE" 2>&1
 
     if diff "$RUN1_FILE" "$RUN2_FILE" > /dev/null 2>&1; then

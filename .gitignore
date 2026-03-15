@@ -1,0 +1,8 @@
+﻿*.exe
+*.o
+*.obj
+.DS_Store
+Thumbs.db
+.txt
+.py
+.png

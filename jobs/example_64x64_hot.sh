@@ -6,6 +6,9 @@
 
 cd $PBS_O_WORKDIR
 
+# Setup MVAPICH2
+source /storage/local/exp_soft/local_al9/mpi/mvapich2-2.3.7-2/install/bin/mpivars.sh
+
 SEED=124634
 LOGFILE="logs/example_64x64_hot_${PBS_JOBID}.log"
 mkdir -p logs
@@ -39,7 +42,7 @@ for T in "${TEMPS[@]}"; do
 
     echo "T=$T  BETA=$BETA  $(date +%H:%M:%S)"
 
-    mpirun -n $NRANKS ./ising_rowing.exe \
+    mpiexec -n $NRANKS ./ising_rowing.exe \
         $NDIM $L0 $L1 $NCONFS $NTHREADS $BETA $SEED
 
     echo " Output: output/64x64/meas_T${T}_hot.txt"
