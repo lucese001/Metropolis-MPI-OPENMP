@@ -27,7 +27,8 @@ NDIM=2
 L0=16
 L1=16
 NCONFS=1000
-BETA=$(awk "BEGIN {printf \"%.10f\", 1.0/2.269}")
+T=2.269
+BETA=$(awk "BEGIN {printf \"%.10f\", 1.0/$T}")
 
 mkdir -p output/16x16
 
@@ -43,26 +44,29 @@ for config in "${TEST_CONFIGS[@]}"; do
     echo "Config: NRANKS=$NRANKS, NTHREADS=$NTHREADS"
     echo ""
 
-    RUN1_FILE="run1_nr${NRANKS}_nt${NTHREADS}.txt"
-    RUN2_FILE="run2_nr${NRANKS}_nt${NTHREADS}.txt"
+    RUN1_FILE="run1.txt"
+    RUN2_FILE="run2.txt"
+    MEAS_FILE="output/16x16/meas_T${T}_cold.txt"
+    FINAL_FILE="output/16x16/meas_T${T}_cold_nr${NRANKS}_nt${NTHREADS}.txt"
 
     echo "  RUN 1"
     mpiexec -n $NRANKS ./ising_test.exe \
-        $NDIM $L0 $L1 $NCONFS $NTHREADS $BETA $SEED -cold > "$RUN1_FILE" 2>&1
+        $NDIM $L0 $L1 $NCONFS $NTHREADS $BETA $SEED -cold > /dev/null 2>&1
+    cp "$MEAS_FILE" "$RUN1_FILE"
 
     echo "  RUN 2 "
     mpiexec -n $NRANKS ./ising_test.exe \
-        $NDIM $L0 $L1 $NCONFS $NTHREADS $BETA $SEED -cold > "$RUN2_FILE" 2>&1
+        $NDIM $L0 $L1 $NCONFS $NTHREADS $BETA $SEED -cold > /dev/null 2>&1
+    cp "$MEAS_FILE" "$RUN2_FILE"
 
     if diff "$RUN1_FILE" "$RUN2_FILE" > /dev/null 2>&1; then
         echo " Output identici"
+        cp "$RUN1_FILE" "$FINAL_FILE"
+        rm -f "$RUN1_FILE" "$RUN2_FILE"
     else
         echo " Output diversi"
-        echo "  Differenze:"
         diff "$RUN1_FILE" "$RUN2_FILE" | head -10
     fi
-
-    rm -f "$RUN1_FILE" "$RUN2_FILE"
     echo ""
 done
 
