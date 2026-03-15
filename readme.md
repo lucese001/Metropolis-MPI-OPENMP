@@ -35,6 +35,8 @@ metropolis.hpp contiene l'algoritmo di Metropolis che regola l'aggiornamento dei
 prng_engine.hpp contiene il generatore di numeri casuali.
 
 
+include (dentro a include) contiene la libreria RANDOM 123, usata per l'RNG counter-based PHILOX
+
 
 
 input contiene il file dimensioni.txt, che ha gli input necessari per lanciare il programma. Primo riga: numero dimensioni. Seconda riga: dimensioni lati del reticolo (deve essere coerente col numero di dimensioni). Terza riga: numero di configurazioni. Quarta riga: numero threads OPEN MP. Quinta riga: beta (inverso temperatura).
@@ -49,13 +51,23 @@ output contine il file meas.txt, che contiene energia e magnetizzazione del reti
 
 
 
-Compilazione:
+Lanciare un job:
+qsub jobs/name_job.sh
 
-mpic++ -O3 -std=c++17 -fopenmp   src/main.cpp   -Iinclude   -o ising
+
+
+Compilare:
+
+
+mpicxx -O3 -std=c++17 -fopenmp \
+    -Iinclude -Iinclude/include \
+    src/main.cpp -o ising_rowing.exe
 
 
 
 
 Esecuzione:
 
-mpirun -n <numero processi> ./ising
+mpiexec -n $NRANKS ./ising_rowing.exe \
+        $NDIM $L0 $L1 $NCONFS $NTHREADS $T $SEED
+
